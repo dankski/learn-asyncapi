@@ -37,7 +37,7 @@ func TestUserStore(t *testing.T) {
 	}
 
 	userStore := NewUserStore(db)
-	user, err := userStore.CreateUser(context.Background(), "john doe", "test@test.com", "testingpasssword")
+	user, err := userStore.CreateUser(context.Background(), "john doe", "test@test.com", "testingpassword")
 	require.NoError(t, err)
 
 	require.Equal(t, "john doe", user.Username)

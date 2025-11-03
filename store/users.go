@@ -19,11 +19,11 @@ type UserStore struct {
 }
 
 type User struct {
-	Id                    uuid.UUID `db:"id"`
-	Username              string    `db:"username"`
-	Email                 string    `db:"email"`
-	HashedPasswordBased64 string    `db:"hash_password"`
-	CreatedAt             time.Time `db:"created_at"`
+	Id                   uuid.UUID `db:"id"`
+	Username             string    `db:"username"`
+	Email                string    `db:"email"`
+	HashedPasswordBase64 string    `db:"hash_password"`
+	CreatedAt            time.Time `db:"created_at"`
 }
 
 func NewUserStore(db *sql.DB) *UserStore {
@@ -33,7 +33,7 @@ func NewUserStore(db *sql.DB) *UserStore {
 }
 
 func (u *User) ComparePassword(password string) error {
-	hashedPassword, err := base64.StdEncoding.DecodeString(u.HashedPasswordBased64)
+	hashedPassword, err := base64.StdEncoding.DecodeString(u.HashedPasswordBase64)
 	if err != nil {
 		return fmt.Errorf("failed to decode hashed password: %w", err)
 	}
@@ -90,10 +90,10 @@ func (us *UserStore) CreateUser(ctx context.Context, username, email, password s
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	hashedPasswordBased64 := base64.StdEncoding.EncodeToString(bytes)
+	HashedPasswordBase64 := base64.StdEncoding.EncodeToString(bytes)
 
 	var user User
-	err = us.db.GetContext(ctx, &user, dml, username, email, hashedPasswordBased64)
+	err = us.db.GetContext(ctx, &user, dml, username, email, HashedPasswordBase64)
 	if err != nil {
 		return nil, fmt.Errorf("failed to insert the user: %w", err)
 	}
