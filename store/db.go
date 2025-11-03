@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"learn-asyncapi/config"
 	"time"
 
+	"github.com/dankski/learn-asyncapi/config"
 	_ "github.com/lib/pq"
 )
 
