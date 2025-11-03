@@ -1,13 +1,12 @@
-package store
+package store_test
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"testing"
+	"time"
 
-	"github.com/dankski/learn-asyncapi/config"
-	"github.com/golang-migrate/migrate/v4"
+	"github.com/dankski/learn-asyncapi/fixtures"
+	. "github.com/dankski/learn-asyncapi/store"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
@@ -19,28 +18,34 @@ func init() {
 }
 
 func TestUserStore(t *testing.T) {
-	os.Setenv("ENV", string(config.EnvTesting))
-	conf, err := config.New()
-	require.NoError(t, err)
 
-	db, err := NewPostgressDB(conf)
-	require.NoError(t, err)
-	defer db.Close()
+	env := fixtures.NewTestEnv(t)
+	cleanup := env.SetupDb(t)
+	t.Cleanup(func() {
+		cleanup(t)
+	})
 
-	m, err := migrate.New(
-		fmt.Sprintf("file:///%s/migrations", conf.ProjectRoot),
-		conf.DatabaseUrl())
-	require.NoError(t, err)
-
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		require.NoError(t, err)
-	}
-
-	userStore := NewUserStore(db)
+	now := time.Now()
+	ctx := context.Background()
+	userStore := NewUserStore(env.Db)
 	user, err := userStore.CreateUser(context.Background(), "john doe", "test@test.com", "testingpassword")
 	require.NoError(t, err)
 
-	require.Equal(t, "john doe", user.Username)
 	require.Equal(t, "test@test.com", user.Email)
 	require.NoError(t, user.ComparePassword("testingpassword"))
+	require.Less(t, now.UnixNano(), user.CreatedAt.UnixNano())
+
+	user2, err := userStore.ById(ctx, user.Id)
+	require.NoError(t, err)
+	require.Equal(t, "test@test.com", user2.Email)
+	require.Equal(t, user.Id, user2.Id)
+	require.Equal(t, user.HashedPasswordBase64, user2.HashedPasswordBase64)
+	require.Equal(t, user.CreatedAt.UnixNano(), user2.CreatedAt.UnixNano())
+
+	user2, err = userStore.ByEmail(ctx, user.Email)
+	require.NoError(t, err)
+	require.Equal(t, user.Email, user2.Email)
+	require.Equal(t, user.Id, user2.Id)
+	require.Equal(t, user.HashedPasswordBase64, user2.HashedPasswordBase64)
+	require.Equal(t, user.CreatedAt.UnixNano(), user2.CreatedAt.UnixNano())
 }
