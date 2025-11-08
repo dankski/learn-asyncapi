@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/dankski/learn-asyncapi/apiserver"
 	"github.com/dankski/learn-asyncapi/config"
+	"github.com/dankski/learn-asyncapi/store"
 )
 
 func main() {
@@ -25,7 +28,16 @@ func run() error {
 		return err
 	}
 
-	server := apiserver.New(conf)
+	jsonHandler := slog.NewJSONHandler(os.Stdout, nil)
+	logger := slog.New(jsonHandler)
+
+	db, err := store.NewPostgressDB(conf)
+	if err != nil {
+		return err
+	}
+
+	dataStore := store.New(db)
+	server := apiserver.New(conf, logger, dataStore)
 	if err := server.Start(ctx); err != nil {
 		return err
 	}

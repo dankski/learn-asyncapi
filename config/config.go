@@ -14,14 +14,16 @@ const (
 )
 
 type Config struct {
-	DBName      string `env:"DB_NAME"`
-	DBUser      string `env:"DB_USER"`
-	DBPassword  string `env:"DB_PASSWORD"`
-	DBHost      string `env:"DB_HOST"`
-	DBPort      string `env:"DB_PORT"`
-	DBPortTest  string `env:"DB_PORT_TEST"`
-	Env         Env    `env:"ENV" envDefault:"dev"`
-	ProjectRoot string `env:"PROJECT_ROOT"`
+	ApiServerPort string `env:"APISERVER_PORT"`
+	ApiServerHost string `env:"APISERVRE_HOST"`
+	DBName        string `env:"DB_NAME"`
+	DBUser        string `env:"DB_USER"`
+	DBPassword    string `env:"DB_PASSWORD"`
+	DBHost        string `env:"DB_HOST"`
+	DBPort        string `env:"DB_PORT"`
+	DBPortTest    string `env:"DB_PORT_TEST"`
+	Env           Env    `env:"ENV" envDefault:"dev"`
+	ProjectRoot   string `env:"PROJECT_ROOT"`
 }
 
 func New() (*Config, error) {

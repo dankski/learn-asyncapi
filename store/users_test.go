@@ -18,7 +18,6 @@ func init() {
 }
 
 func TestUserStore(t *testing.T) {
-
 	env := fixtures.NewTestEnv(t)
 	cleanup := env.SetupDb(t)
 	t.Cleanup(func() {
@@ -28,7 +27,7 @@ func TestUserStore(t *testing.T) {
 	now := time.Now()
 	ctx := context.Background()
 	userStore := NewUserStore(env.Db)
-	user, err := userStore.CreateUser(context.Background(), "john doe", "test@test.com", "testingpassword")
+	user, err := userStore.CreateUser(context.Background(), "test@test.com", "testingpassword")
 	require.NoError(t, err)
 
 	require.Equal(t, "test@test.com", user.Email)
